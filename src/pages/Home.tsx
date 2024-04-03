@@ -1,5 +1,4 @@
 import Hero from '@/components/Hero'
-import React from 'react'
 import delivery from "../assets/deliver.webp"
 const Home = () => {
   return (
