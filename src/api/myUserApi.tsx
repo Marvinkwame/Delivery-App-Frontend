@@ -25,7 +25,7 @@ export const useCreateUser = () => {
             body: JSON.stringify(user)
         })
 
-        if (!response) {
+        if (!response.ok) {
             throw new Error("Failed to create user")
         }
     }
@@ -54,7 +54,7 @@ export const useUpdateMyUser = () => {
     const updateMyUserRequest = async (formData: UpdateMyUserRequest) => {
         const accessToken = await getAccessTokenSilently()
         const response = await fetch(`${API_BASE_URL}/api/my/user`, {
-            method: "PATCH",
+            method: "PUT",
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 "Content-type": "application/json"

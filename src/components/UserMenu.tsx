@@ -20,6 +20,9 @@ const UserMenu = () => {
         <DropdownMenuItem>
           <Link to="/me" className='font-bold text-lg'>Profile</Link>
         </DropdownMenuItem>
+        <DropdownMenuItem>
+          <Link to="/manage-restaurant" className='font-bold text-lg'>Manage Your Restaurant</Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <Button variant="ghost"

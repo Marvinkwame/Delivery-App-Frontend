@@ -23,7 +23,7 @@ const formSchema = z.object({
         message: "City is required"
     }),
     country: z.string().min(1, {
-        message: "City is required"
+        message: "country is required"
     })
 })
 
@@ -31,8 +31,8 @@ type UserFormData = z.infer<typeof formSchema>
 
 type Props = {
     onSave: (userProfileData: UserFormData) => void;
-    isLoading: boolean, 
-    currentUser: User,
+    isLoading: boolean;
+    currentUser: User;
 }
 
 const UserProfile = ({ isLoading, onSave, currentUser }: Props) => {
