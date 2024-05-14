@@ -3,7 +3,7 @@
 const Hero = () => {
     return (
         <div className='grid place-items-center '>
-            <h2 className='text-green-950 text-[4rem] w-[90%] font-bold md:text-7xl px-8 md:w-[70%] text-center leading-tight'>
+            <h2 className='text-green-950 text-5xl font-bold md:text-7xl px-8 md:w-[70%] text-center leading-tight'>
                 Locally Produced Delivered Directly To
                 Your Door.
             </h2>
