@@ -1,9 +1,11 @@
 import { useGetRestaurantById } from "@/api/RestaurantApi";
+import CheckoutButton from "@/components/CheckoutButton";
 import RestaurantCartItemCard from "@/components/RestaurantCartItemCard";
 import RestaurantIdInfo from "@/components/RestaurantIdInfo";
 import RestaurantMenuItem from "@/components/RestaurantMenuItem";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Card, CardFooter } from "@/components/ui/card";
+import { UserFormData } from "@/forms/user-profile-forms/UserProfile";
 import { MenuItem } from "@/types";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
@@ -19,7 +21,10 @@ const RestaurantDetailPage = () => {
   const { restaurantId } = useParams();
   const { restaurant, isLoading } = useGetRestaurantById(restaurantId);
 
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    const storedItems = sessionStorage.getItem(`cartItem-${restaurantId}`);
+    return storedItems ? JSON.parse(storedItems) : [];
+  });
 
   const addToCart = (menuItem: MenuItem) => {
     setCartItems((prevCartItems) => {
@@ -50,6 +55,11 @@ const RestaurantDetailPage = () => {
         ];
       }
 
+      sessionStorage.setItem(
+        `cartItem-${restaurantId}`,
+        JSON.stringify(updatedCartItems)
+      );
+
       return updatedCartItems;
     });
   };
@@ -60,8 +70,17 @@ const RestaurantDetailPage = () => {
         (item) => cartItem._id !== item._id
       );
 
+      sessionStorage.setItem(
+        `cartItem-${restaurantId}`,
+        JSON.stringify(updatedCartItems)
+      );
+
       return updatedCartItems;
     });
+  };
+
+  const onCheckout = (userFormData: UserFormData) => {
+    console.log("user details", userFormData);
   };
 
   if (isLoading || !restaurant) {
@@ -103,7 +122,10 @@ const RestaurantDetailPage = () => {
               removeFromCart={removeFromCart}
             />
             <CardFooter>
-              
+              <CheckoutButton
+                disabled={cartItems.length === 0}
+                onCheckout={onCheckout}
+              />
             </CardFooter>
           </Card>
         </div>
