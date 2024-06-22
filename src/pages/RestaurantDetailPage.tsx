@@ -1,13 +1,68 @@
 import { useGetRestaurantById } from "@/api/RestaurantApi";
+import RestaurantCartItemCard from "@/components/RestaurantCartItemCard";
 import RestaurantIdInfo from "@/components/RestaurantIdInfo";
 import RestaurantMenuItem from "@/components/RestaurantMenuItem";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import React from "react";
+import { Card, CardFooter } from "@/components/ui/card";
+import { MenuItem } from "@/types";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
+
+export type CartItem = {
+  _id: string;
+  name: string;
+  price: number;
+  quantity: number;
+};
 
 const RestaurantDetailPage = () => {
   const { restaurantId } = useParams();
   const { restaurant, isLoading } = useGetRestaurantById(restaurantId);
+
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  const addToCart = (menuItem: MenuItem) => {
+    setCartItems((prevCartItems) => {
+      //1.check if the item is already in the cart
+      const existingItem = prevCartItems.find(
+        (cartItem) => cartItem._id === menuItem._id
+      ); //return the whole item object
+
+      let updatedCartItems;
+
+      //2.if item is in the cart, update the quantity
+      if (existingItem) {
+        updatedCartItems = prevCartItems.map((cartItem) =>
+          cartItem._id === menuItem._id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      } else {
+        //3.if item is not in the cart, add it as a new item
+        updatedCartItems = [
+          ...prevCartItems,
+          {
+            _id: menuItem._id,
+            name: menuItem.name,
+            price: menuItem.price,
+            quantity: 1,
+          },
+        ];
+      }
+
+      return updatedCartItems;
+    });
+  };
+
+  const removeFromCart = (cartItem: CartItem) => {
+    setCartItems((prevCartItems) => {
+      const updatedCartItems = prevCartItems.filter(
+        (item) => cartItem._id !== item._id
+      );
+
+      return updatedCartItems;
+    });
+  };
 
   if (isLoading || !restaurant) {
     return <h1>Loading.....</h1>;
@@ -26,15 +81,32 @@ const RestaurantDetailPage = () => {
         <div className="flex flex-col gap-4">
           <RestaurantIdInfo restaurant={restaurant} />
           <h3 className="text-2xl font-bold tracking-tight">
-            Our Menu 
-            <span className="text-green-600 text-xl italic">(Click on your desired item to select)</span>
-            </h3>
+            Our Menu
+            <span className="text-green-600 text-xl italic">
+              (Click on your desired item to select)
+            </span>
+          </h3>
           {restaurant.menuItems.map((item) => (
-            <RestaurantMenuItem menuItem={item} />
+            <RestaurantMenuItem
+              addToCart={() => addToCart(item)}
+              menuItem={item}
+            />
           ))}
         </div>
 
         {/* RIGHT SIDE */}
+        <div>
+          <Card>
+            <RestaurantCartItemCard
+              cartItems={cartItems}
+              restaurant={restaurant}
+              removeFromCart={removeFromCart}
+            />
+            <CardFooter>
+              
+            </CardFooter>
+          </Card>
+        </div>
       </div>
     </div>
   );
