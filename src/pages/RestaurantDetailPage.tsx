@@ -1,4 +1,5 @@
 import { useGetRestaurantById } from "@/api/RestaurantApi";
+import { useCreateCheckoutSession } from "@/api/orderApi";
 import CheckoutButton from "@/components/CheckoutButton";
 import RestaurantCartItemCard from "@/components/RestaurantCartItemCard";
 import RestaurantIdInfo from "@/components/RestaurantIdInfo";
@@ -20,6 +21,8 @@ export type CartItem = {
 const RestaurantDetailPage = () => {
   const { restaurantId } = useParams();
   const { restaurant, isLoading } = useGetRestaurantById(restaurantId);
+  const { checkoutSession, isLoading: isLoadingCheckout } =
+    useCreateCheckoutSession();
 
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     const storedItems = sessionStorage.getItem(`cartItem-${restaurantId}`);
@@ -79,8 +82,30 @@ const RestaurantDetailPage = () => {
     });
   };
 
-  const onCheckout = (userFormData: UserFormData) => {
+  const onCheckout = async (userFormData: UserFormData) => {
     console.log("user details", userFormData);
+
+    if (!restaurant) {
+      return;
+    }
+
+    const checkoutData = {
+      cartItems: cartItems.map((cartItem) => ({
+        menuItemId: cartItem._id,
+        name: cartItem.name,
+        quantity: cartItem.quantity.toString(),
+      })),
+      restaurantId: restaurant?._id,
+      deliveryDetails: {
+        name: userFormData.name,
+        email: userFormData.email as string,
+        addressLine1: userFormData.addressLine1,
+        city: userFormData.city
+      },
+    };
+
+    const data = await checkoutSession(checkoutData);
+    window.location.href = data.url;
   };
 
   if (isLoading || !restaurant) {
@@ -125,6 +150,7 @@ const RestaurantDetailPage = () => {
               <CheckoutButton
                 disabled={cartItems.length === 0}
                 onCheckout={onCheckout}
+                isLoadingCheckout={isLoadingCheckout}
               />
             </CardFooter>
           </Card>
