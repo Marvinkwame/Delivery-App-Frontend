@@ -93,7 +93,7 @@ const RestaurantDetailPage = () => {
       cartItems: cartItems.map((cartItem) => ({
         menuItemId: cartItem._id,
         name: cartItem.name,
-        quantity: cartItem.quantity.toString(),
+        quantity: cartItem.quantity.toString(), 
       })),
       restaurantId: restaurant?._id,
       deliveryDetails: {
